@@ -61,18 +61,33 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
+// Helper function to try generating content with fallback models and retry logic
+async function generateWithFallback(prompt) {
+  const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash'];
+  
+  let lastError = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const responseText = await result.response.text();
+      if (responseText) {
+        return responseText;
+      }
+    } catch (err) {
+      console.warn(`Model ${modelName} failed or busy, trying next...`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('All AI models are currently busy.');
+}
+
 export async function POST(req) {
   try {
     const body = await req.json();
     const { action, jobTitle, experience, skills, jobDescription } = body;
-
-    // Use gemini-1.5-flash with a fallback mechanism
-    let model;
-    try {
-      model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    } catch {
-      model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-    }
 
     if (action === 'generate_summary') {
       const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. 
@@ -80,9 +95,7 @@ Skills: ${skills || 'Software development, web technologies'}.
 Experience: ${typeof experience === 'object' ? experience.description || '' : experience}. 
 Keep it ATS-friendly, impactful, and active. Return ONLY the text summary with no introductory text or markdown formatting.`;
 
-      const result = await model.generateContent(prompt);
-      const responseText = await result.response.text();
-
+      const responseText = await generateWithFallback(prompt);
       return Response.json({ summary: responseText.trim() });
     }
 
@@ -104,8 +117,7 @@ Provide feedback in STRICT valid JSON format with these exact keys:
 }
 Return ONLY valid JSON with no markdown formatting.`;
 
-      const result = await model.generateContent(prompt);
-      let responseText = await result.response.text();
+      let responseText = await generateWithFallback(prompt);
       responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
       const parsedData = JSON.parse(responseText);
@@ -117,8 +129,8 @@ Return ONLY valid JSON with no markdown formatting.`;
   } catch (error) {
     console.error('AI Route Error:', error);
     return Response.json(
-      { error: 'AI service is temporarily busy. Please try again in a few seconds.' },
-      { status: 500 }
+      { error: 'AI service is currently experiencing high demand. Please click again in a few seconds.' },
+      { status: 503 }
     );
   }
 }
