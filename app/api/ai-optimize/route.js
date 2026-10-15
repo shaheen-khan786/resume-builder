@@ -55,16 +55,14 @@
 
 
 
-
-import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(req) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: 'GEMINI_API_KEY environment variable is missing.' },
+      return Response.json(
+        { error: 'GEMINI_API_KEY is missing in environment variables.' },
         { status: 500 }
       );
     }
@@ -73,78 +71,44 @@ export async function POST(req) {
     const body = await req.json();
     const { action, jobTitle, experience, skills, jobDescription } = body;
 
-    // Helper function for multi-model fallback execution
-    const generateContentWithFallback = async (promptText) => {
-      const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro'];
-      let lastErr = null;
-
-      for (const mName of modelsToTry) {
-        try {
-          const model = genAI.getGenerativeModel({ model: mName });
-          const result = await model.generateContent(promptText);
-          const response = await result.response;
-          const text = response.text();
-          if (text) return text;
-        } catch (err) {
-          console.warn(`Model ${mName} attempt failed:`, err?.message || err);
-          lastErr = err;
-        }
-      }
-      throw lastErr || new Error('All AI model attempts failed.');
-    };
+    const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
 
     if (action === 'generate_summary') {
-      const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
-      const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. 
-Skills: ${skills || 'Software development, web technologies'}. 
-Experience: ${expText}. 
-Keep it ATS-friendly, impactful, and active. Return ONLY the text summary with no markdown or introductory words.`;
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. Skills: ${skills || 'Software development'}. Experience: ${expText}. Return ONLY text summary with no markdown.`;
 
-      const summaryText = await generateContentWithFallback(prompt);
-      return NextResponse.json({ summary: summaryText.trim() });
+      const result = await model.generateContent(prompt);
+      const text = await result.response.text();
+
+      return Response.json({ summary: text.trim() });
     }
 
     if (action === 'analyze_jd') {
-      const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
-      const prompt = `Act as an ATS (Applicant Tracking System) optimizer.
-Compare candidate profile:
-- Job Title: ${jobTitle}
-- Skills: ${skills}
-- Experience: ${expText}
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const prompt = `Act as an ATS optimizer. Compare candidate profile (Job Title: ${jobTitle}, Skills: ${skills}, Experience: ${expText}) against target Job Description: "${jobDescription}". Return STRICT JSON format: {"matchScore": 85, "missingKeywords": ["keyword1"], "suggestions": "tip"}`;
 
-Against Target Job Description:
-"${jobDescription}"
-
-Provide feedback in STRICT valid JSON with exact keys:
-{
-  "matchScore": 85,
-  "missingKeywords": ["keyword1", "keyword2"],
-  "suggestions": "1-2 actionable tips"
-}
-Return ONLY valid raw JSON without markdown codeblocks or quotes.`;
-
-      let rawResponse = await generateContentWithFallback(prompt);
-      rawResponse = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+      const result = await model.generateContent(prompt);
+      let text = await result.response.text();
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
       try {
-        const parsedData = JSON.parse(rawResponse);
-        return NextResponse.json(parsedData);
-      } catch (pErr) {
-        console.error('JSON Parsing Error:', pErr, rawResponse);
-        return NextResponse.json({
+        const parsedData = JSON.parse(text);
+        return Response.json(parsedData);
+      } catch {
+        return Response.json({
           matchScore: 80,
           missingKeywords: ['Tailwind CSS', 'TypeScript'],
-          suggestions: 'Tailor your experience section to emphasize key technical competencies mentioned in the job post.'
+          suggestions: 'Align resume keywords with target job description requirements.'
         });
       }
     }
 
-    return NextResponse.json({ error: 'Invalid action requested' }, { status: 400 });
+    return Response.json({ error: 'Invalid action' }, { status: 400 });
 
   } catch (error) {
-    console.error('AI Route Critical Error:', error);
-    return NextResponse.json(
-      { error: error?.message || 'AI Service temporarily unavailable. Please try again.' },
+    console.error('API Error:', error);
+    return Response.json(
+      { error: error?.message || 'AI service error.' },
       { status: 500 }
     );
   }
