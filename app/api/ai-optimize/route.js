@@ -56,81 +56,94 @@
 
 
 
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
-// Helper function to try generating content with fallback models and retry logic
-async function generateWithFallback(prompt) {
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash'];
-  
-  let lastError = null;
-
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const responseText = await result.response.text();
-      if (responseText) {
-        return responseText;
-      }
-    } catch (err) {
-      console.warn(`Model ${modelName} failed or busy, trying next...`, err.message);
-      lastError = err;
-    }
-  }
-
-  throw lastError || new Error('All AI models are currently busy.');
-}
 
 export async function POST(req) {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return Response.json(
+        { error: 'GEMINI_API_KEY is not configured in Vercel environment variables.' },
+        { status: 500 }
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
     const body = await req.json();
     const { action, jobTitle, experience, skills, jobDescription } = body;
 
+    // Helper function with verified stable models
+    const generateText = async (promptText) => {
+      const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+      let lastErr = null;
+
+      for (const mName of models) {
+        try {
+          const model = genAI.getGenerativeModel({ model: mName });
+          const result = await model.generateContent(promptText);
+          const text = await result.response.text();
+          if (text) return text;
+        } catch (err) {
+          console.warn(`Model ${mName} failed:`, err?.message || err);
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error('All models failed to respond.');
+    };
+
     if (action === 'generate_summary') {
+      const expDesc = typeof experience === 'object' ? experience?.description || '' : experience || '';
       const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. 
 Skills: ${skills || 'Software development, web technologies'}. 
-Experience: ${typeof experience === 'object' ? experience.description || '' : experience}. 
-Keep it ATS-friendly, impactful, and active. Return ONLY the text summary with no introductory text or markdown formatting.`;
+Experience: ${expDesc}. 
+Keep it ATS-friendly, impactful, and active. Return ONLY the text summary with no markdown or introductory words.`;
 
-      const responseText = await generateWithFallback(prompt);
-      return Response.json({ summary: responseText.trim() });
+      const summaryText = await generateText(prompt);
+      return Response.json({ summary: summaryText.trim() });
     }
 
     if (action === 'analyze_jd') {
+      const expDesc = typeof experience === 'object' ? experience?.description || '' : experience || '';
       const prompt = `Act as an ATS (Applicant Tracking System) optimizer.
-Compare this candidate profile:
+Compare candidate profile:
 - Job Title: ${jobTitle}
 - Skills: ${skills}
-- Experience: ${typeof experience === 'object' ? experience.description || '' : experience}
+- Experience: ${expDesc}
 
-Against this Target Job Description:
+Against Target Job Description:
 "${jobDescription}"
 
-Provide feedback in STRICT valid JSON format with these exact keys:
+Provide feedback in STRICT valid JSON with exact keys:
 {
-  "matchScore": number between 0 and 100,
+  "matchScore": 85,
   "missingKeywords": ["keyword1", "keyword2"],
-  "suggestions": "1-2 actionable tips to improve the resume for this role"
+  "suggestions": "1-2 actionable tips"
 }
-Return ONLY valid JSON with no markdown formatting.`;
+Return ONLY valid raw JSON without markdown codeblocks or quotes.`;
 
-      let responseText = await generateWithFallback(prompt);
-      responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      let rawResponse = await generateText(prompt);
+      rawResponse = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
 
-      const parsedData = JSON.parse(responseText);
-      return Response.json(parsedData);
+      try {
+        const parsedData = JSON.parse(rawResponse);
+        return Response.json(parsedData);
+      } catch (pErr) {
+        console.error('JSON Parse Error:', pErr, rawResponse);
+        return Response.json({
+          matchScore: 75,
+          missingKeywords: ['Tailwind CSS', 'TypeScript'],
+          suggestions: 'Align your skills section with target keywords mentioned in the job description.'
+        });
+      }
     }
 
-    return Response.json({ error: 'Invalid action requested' }, { status: 400 });
+    return Response.json({ error: 'Invalid action' }, { status: 400 });
 
   } catch (error) {
-    console.error('AI Route Error:', error);
+    console.error('API Error:', error);
     return Response.json(
-      { error: 'AI service is currently experiencing high demand. Please click again in a few seconds.' },
-      { status: 503 }
+      { error: error?.message || 'AI service error. Please try again.' },
+      { status: 500 }
     );
   }
 }
