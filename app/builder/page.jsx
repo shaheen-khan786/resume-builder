@@ -877,42 +877,31 @@ function BuilderContent() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       
-      {/* Strict Print-Only CSS to guarantee clean white PDF */}
+      {/* Absolute Clean Print CSS */}
       <style jsx global>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 10mm 15mm;
           }
-          html, body {
+          body, html {
             background: #ffffff !important;
             color: #000000 !important;
             margin: 0 !important;
             padding: 0 !important;
-            width: 100% !important;
-            height: auto !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-          }
-          header, .no-print, .preview-wrapper {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
           }
           header, .no-print {
             display: none !important;
           }
           #printable-resume {
             display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: relative !important;
             width: 100% !important;
             max-width: 100% !important;
-            min-height: 100vh !important;
             margin: 0 !important;
-            padding: 15mm 20mm !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border: none !important;
             border-radius: 0 !important;
@@ -1225,80 +1214,62 @@ function BuilderContent() {
 
         </div>
 
-        {/* Right Side: High-End Live Resume Preview */}
+        {/* Right Side: Professional Live Resume Preview */}
         <div className="preview-wrapper bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
           
           <div
             id="printable-resume"
-            className={`w-full max-w-[680px] bg-white text-slate-900 p-10 shadow-2xl min-h-[840px] flex flex-col justify-between font-sans transition-all ${
-              template === 'classic'
-                ? 'border-t-8 border-indigo-700'
-                : template === 'minimalist'
-                ? 'border-t-4 border-slate-900'
-                : 'border-t-8 border-slate-800'
-            }`}
+            className="w-full max-w-[650px] bg-white text-slate-900 p-10 shadow-2xl min-h-[800px] flex flex-col justify-between font-sans rounded-none border border-slate-200"
           >
             <div>
-              {/* Header */}
+              {/* Header based on Template */}
               {template === 'classic' ? (
-                /* Classic Executive Layout */
-                <div className="border-b-2 border-slate-800 pb-5 mb-6 text-center">
-                  <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 uppercase">
-                    {formData.personal_info.fullName || 'SHAHEEN KHAN'}
+                <div className="border-b-2 border-black pb-4 mb-6 text-center font-serif">
+                  <h1 className="text-2xl font-bold tracking-wide uppercase text-black">
+                    {formData.personal_info.fullName || 'Full Name'}
                   </h1>
-                  <p className="text-sm font-bold text-indigo-700 uppercase tracking-widest mt-1">
-                    {formData.personal_info.jobTitle || 'FULL STACK DEVELOPER'}
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-700 mt-1">
+                    {formData.personal_info.jobTitle || 'Professional Title'}
                   </p>
-                  <div className="flex justify-center items-center gap-3 text-xs text-slate-600 mt-2 font-medium">
-                    <span>{formData.personal_info.email || 'shaheen@example.com'}</span>
-                    <span>|</span>
-                    <span>{formData.personal_info.phone || '+92 300 0000000'}</span>
+                  <div className="flex justify-center gap-3 text-xs text-slate-600 mt-2">
+                    <span>{formData.personal_info.email || 'email@example.com'}</span>
+                    <span>•</span>
+                    <span>{formData.personal_info.phone || 'Phone'}</span>
                   </div>
                 </div>
               ) : template === 'minimalist' ? (
-                /* Minimalist Clean Layout */
-                <div className="border-b border-slate-300 pb-4 mb-6">
-                  <h1 className="text-3xl font-light tracking-tight text-slate-900">
-                    {formData.personal_info.fullName || 'Shaheen Khan'}
+                <div className="border-b border-slate-400 pb-4 mb-6">
+                  <h1 className="text-3xl font-light tracking-tight text-black">
+                    {formData.personal_info.fullName || 'Full Name'}
                   </h1>
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      {formData.personal_info.jobTitle || 'Full Stack Developer'}
-                    </p>
-                    <div className="flex gap-3 text-xs text-slate-500">
-                      <span>{formData.personal_info.email || 'shaheen@example.com'}</span>
-                      <span>•</span>
-                      <span>{formData.personal_info.phone || '+92 300 0000000'}</span>
-                    </div>
+                  <div className="flex justify-between items-center mt-1 text-xs text-slate-600">
+                    <span className="font-semibold uppercase tracking-wider">{formData.personal_info.jobTitle || 'Professional Title'}</span>
+                    <span>{formData.personal_info.email || 'email@example.com'} • {formData.personal_info.phone || 'Phone'}</span>
                   </div>
                 </div>
               ) : (
-                /* Modern Bold Header Layout */
-                <div className="border-b-2 border-indigo-600 pb-5 mb-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                        {formData.personal_info.fullName || 'Shaheen Khan'}
-                      </h1>
-                      <p className="text-sm font-bold text-indigo-600 mt-0.5">
-                        {formData.personal_info.jobTitle || 'Full Stack Developer'}
-                      </p>
-                    </div>
-                    <div className="text-right text-xs text-slate-600 space-y-0.5 font-medium">
-                      <p>{formData.personal_info.email || 'shaheen@example.com'}</p>
-                      <p>{formData.personal_info.phone || '+92 300 0000000'}</p>
-                    </div>
+                <div className="border-b-2 border-indigo-600 pb-4 mb-6">
+                  <h1 className="text-2xl font-extrabold text-slate-900">
+                    {formData.personal_info.fullName || 'Full Name'}
+                  </h1>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wide">
+                      {formData.personal_info.jobTitle || 'Professional Title'}
+                    </span>
+                    <span className="text-xs text-slate-600 font-medium">
+                      {formData.personal_info.email || 'email@example.com'} | {formData.personal_info.phone || 'Phone'}
+                    </span>
                   </div>
                 </div>
               )}
 
               {/* Summary */}
               {formData.personal_info.summary && (
-                <div className="mb-6">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-2">
+                <div className="mb-5">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
                     Professional Summary
                   </h2>
-                  <p className="text-xs text-slate-700 leading-relaxed font-normal">
+                  <p className="text-xs text-slate-800 leading-relaxed">
                     {formData.personal_info.summary}
                   </p>
                 </div>
@@ -1306,57 +1277,48 @@ function BuilderContent() {
 
               {/* Experience */}
               {(formData.experience.title || formData.experience.company) && (
-                <div className="mb-6">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-3">
-                    Professional Experience
+                <div className="mb-5">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
+                    Experience
                   </h2>
-                  <div className="mb-3">
-                    <div className="flex justify-between items-baseline">
-                      <h3 className="text-xs font-bold text-slate-900">
-                        {formData.experience.title}
-                        {formData.experience.company && <span className="font-semibold text-slate-600"> — {formData.experience.company}</span>}
-                      </h3>
-                      <span className="text-[11px] font-semibold text-slate-500">{formData.experience.duration}</span>
-                    </div>
-                    <p className="text-xs text-slate-700 leading-relaxed mt-1">
-                      {formData.experience.description}
-                    </p>
+                  <div className="flex justify-between items-baseline mb-1">
+                    <h3 className="text-xs font-bold text-black">
+                      {formData.experience.title} {formData.experience.company && `at ${formData.experience.company}`}
+                    </h3>
+                    <span className="text-[11px] text-slate-600 font-semibold">{formData.experience.duration}</span>
                   </div>
+                  <p className="text-xs text-slate-800 leading-relaxed">{formData.experience.description}</p>
                 </div>
               )}
 
               {/* Education */}
               {(formData.education.degree || formData.education.institution) && (
-                <div className="mb-6">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-3">
+                <div className="mb-5">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
                     Education
                   </h2>
                   <div className="flex justify-between items-baseline">
-                    <div>
-                      <h3 className="text-xs font-bold text-slate-900">{formData.education.degree}</h3>
-                      <p className="text-xs text-slate-600 font-medium">{formData.education.institution}</p>
-                    </div>
-                    <span className="text-[11px] font-semibold text-slate-500">{formData.education.year}</span>
+                    <h3 className="text-xs font-bold text-black">
+                      {formData.education.degree} {formData.education.institution && `— ${formData.education.institution}`}
+                    </h3>
+                    <span className="text-[11px] text-slate-600 font-semibold">{formData.education.year}</span>
                   </div>
                 </div>
               )}
 
               {/* Skills */}
               {formData.skills && (
-                <div className="mb-6">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-2">
-                    Technical Skills
+                <div>
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
+                    Skills
                   </h2>
-                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                    {formData.skills}
-                  </p>
+                  <p className="text-xs text-slate-800 leading-relaxed">{formData.skills}</p>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400 font-medium">
-              CareerCraft Studio • ATS Formatted
+            <div className="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-500">
+              CareerCraft Studio • ATS Optimized
             </div>
           </div>
 
