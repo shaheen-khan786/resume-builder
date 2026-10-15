@@ -1,5 +1,4 @@
 
-
 // 'use client';
 
 // import { useEffect, useState, Suspense } from 'react';
@@ -212,29 +211,37 @@
 
 //   return (
 //     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-
-//      {/* Print Global Styles for Clean PDF Export */}
+      
+//       {/* Absolute Clean Print CSS */}
 //       <style jsx global>{`
 //         @media print {
-//           body {
-//             background: white !important;
-//             color: black !important;
+//           @page {
+//             size: A4 portrait;
+//             margin: 10mm 15mm;
 //           }
-//           header, .no-print, form, input, textarea, button {
+//           body, html {
+//             background: #ffffff !important;
+//             color: #000000 !important;
+//             margin: 0 !important;
+//             padding: 0 !important;
+//             -webkit-print-color-adjust: exact !important;
+//             print-color-adjust: exact !important;
+//           }
+//           header, .no-print {
 //             display: none !important;
 //           }
 //           #printable-resume {
 //             display: block !important;
-//             position: absolute !important;
-//             left: 0 !important;
-//             top: 0 !important;
+//             position: relative !important;
 //             width: 100% !important;
+//             max-width: 100% !important;
+//             margin: 0 !important;
+//             padding: 0 !important;
 //             box-shadow: none !important;
 //             border: none !important;
-//             margin: 0 !important;
-//             padding: 10px !important;
-//             background: white !important;
-//             color: black !important;
+//             border-radius: 0 !important;
+//             background: #ffffff !important;
+//             color: #000000 !important;
 //           }
 //         }
 //       `}</style>
@@ -542,43 +549,62 @@
 
 //         </div>
 
-//         {/* Right Side: Live Resume Preview */}
-//         <div className="bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
+//         {/* Right Side: Professional Live Resume Preview */}
+//         <div className="preview-wrapper bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
           
-//           {/* Resume Container with Dynamic Template Classes */}
 //           <div
 //             id="printable-resume"
-//             className={`w-full max-w-[650px] text-slate-900 p-8 rounded-xl shadow-2xl min-h-[750px] flex flex-col justify-between transition-all ${
-//               template === 'classic'
-//                 ? 'bg-amber-50/90 font-serif border-2 border-amber-900/20'
-//                 : template === 'minimalist'
-//                 ? 'bg-stone-50 font-mono border border-stone-300'
-//                 : 'bg-white font-sans'
-//             }`}
+//             className="w-full max-w-[650px] bg-white text-slate-900 p-10 shadow-2xl min-h-[800px] flex flex-col justify-between font-sans rounded-none border border-slate-200"
 //           >
 //             <div>
-//               {/* Header */}
-//               <div className={`pb-4 mb-6 ${template === 'classic' ? 'border-b-2 border-amber-900/30 text-center' : template === 'minimalist' ? 'border-b border-stone-400' : 'border-b border-slate-300'}`}>
-//                 <h1 className={`text-2xl font-extrabold tracking-tight ${template === 'classic' ? 'text-amber-950 font-serif' : template === 'minimalist' ? 'text-stone-950 tracking-widest uppercase' : 'text-slate-900'}`}>
-//                   {formData.personal_info.fullName || 'Your Name'}
-//                 </h1>
-//                 <p className={`text-sm font-semibold mt-0.5 ${template === 'classic' ? 'text-amber-800 italic font-serif' : template === 'minimalist' ? 'text-stone-600' : 'text-indigo-600'}`}>
-//                   {formData.personal_info.jobTitle || 'Professional Title'}
-//                 </p>
-//                 <div className={`flex gap-4 text-xs mt-2 ${template === 'classic' ? 'justify-center text-amber-900/80' : template === 'minimalist' ? 'text-stone-600' : 'text-slate-600'}`}>
-//                   <span>{formData.personal_info.email || 'email@example.com'}</span>
-//                   <span>•</span>
-//                   <span>{formData.personal_info.phone || 'Phone Number'}</span>
+//               {/* Header based on Template */}
+//               {template === 'classic' ? (
+//                 <div className="border-b-2 border-black pb-4 mb-6 text-center font-serif">
+//                   <h1 className="text-2xl font-bold tracking-wide uppercase text-black">
+//                     {formData.personal_info.fullName || 'Full Name'}
+//                   </h1>
+//                   <p className="text-xs font-semibold uppercase tracking-widest text-slate-700 mt-1">
+//                     {formData.personal_info.jobTitle || 'Professional Title'}
+//                   </p>
+//                   <div className="flex justify-center gap-3 text-xs text-slate-600 mt-2">
+//                     <span>{formData.personal_info.email || 'email@example.com'}</span>
+//                     <span>•</span>
+//                     <span>{formData.personal_info.phone || 'Phone'}</span>
+//                   </div>
 //                 </div>
-//               </div>
+//               ) : template === 'minimalist' ? (
+//                 <div className="border-b border-slate-400 pb-4 mb-6">
+//                   <h1 className="text-3xl font-light tracking-tight text-black">
+//                     {formData.personal_info.fullName || 'Full Name'}
+//                   </h1>
+//                   <div className="flex justify-between items-center mt-1 text-xs text-slate-600">
+//                     <span className="font-semibold uppercase tracking-wider">{formData.personal_info.jobTitle || 'Professional Title'}</span>
+//                     <span>{formData.personal_info.email || 'email@example.com'} • {formData.personal_info.phone || 'Phone'}</span>
+//                   </div>
+//                 </div>
+//               ) : (
+//                 <div className="border-b-2 border-indigo-600 pb-4 mb-6">
+//                   <h1 className="text-2xl font-extrabold text-slate-900">
+//                     {formData.personal_info.fullName || 'Full Name'}
+//                   </h1>
+//                   <div className="flex justify-between items-center mt-1">
+//                     <span className="text-xs font-bold text-indigo-600 uppercase tracking-wide">
+//                       {formData.personal_info.jobTitle || 'Professional Title'}
+//                     </span>
+//                     <span className="text-xs text-slate-600 font-medium">
+//                       {formData.personal_info.email || 'email@example.com'} | {formData.personal_info.phone || 'Phone'}
+//                     </span>
+//                   </div>
+//                 </div>
+//               )}
 
 //               {/* Summary */}
 //               {formData.personal_info.summary && (
-//                 <div className="mb-6">
-//                   <h2 className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${template === 'classic' ? 'text-amber-900 font-serif text-center' : template === 'minimalist' ? 'text-stone-900 font-bold border-b border-stone-300 pb-1' : 'text-slate-400'}`}>
+//                 <div className="mb-5">
+//                   <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
 //                     Professional Summary
 //                   </h2>
-//                   <p className={`text-xs leading-relaxed ${template === 'classic' ? 'text-amber-950 text-center italic' : template === 'minimalist' ? 'text-stone-800' : 'text-slate-700'}`}>
+//                   <p className="text-xs text-slate-800 leading-relaxed">
 //                     {formData.personal_info.summary}
 //                   </p>
 //                 </div>
@@ -586,31 +612,31 @@
 
 //               {/* Experience */}
 //               {(formData.experience.title || formData.experience.company) && (
-//                 <div className="mb-6">
-//                   <h2 className={`text-xs font-bold uppercase tracking-wider mb-2 ${template === 'classic' ? 'text-amber-900 font-serif text-center' : template === 'minimalist' ? 'text-stone-900 font-bold border-b border-stone-300 pb-1' : 'text-slate-400'}`}>
+//                 <div className="mb-5">
+//                   <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
 //                     Experience
 //                   </h2>
-//                   <div className="flex justify-between items-start mb-1">
-//                     <h3 className={`text-xs font-bold ${template === 'classic' ? 'text-amber-950 font-serif' : 'text-slate-800'}`}>
-//                       {formData.experience.title} {formData.experience.company && `— ${formData.experience.company}`}
+//                   <div className="flex justify-between items-baseline mb-1">
+//                     <h3 className="text-xs font-bold text-black">
+//                       {formData.experience.title} {formData.experience.company && `at ${formData.experience.company}`}
 //                     </h3>
-//                     <span className="text-[11px] text-slate-500 font-medium">{formData.experience.duration}</span>
+//                     <span className="text-[11px] text-slate-600 font-semibold">{formData.experience.duration}</span>
 //                   </div>
-//                   <p className="text-xs text-slate-600 leading-relaxed">{formData.experience.description}</p>
+//                   <p className="text-xs text-slate-800 leading-relaxed">{formData.experience.description}</p>
 //                 </div>
 //               )}
 
 //               {/* Education */}
 //               {(formData.education.degree || formData.education.institution) && (
-//                 <div className="mb-6">
-//                   <h2 className={`text-xs font-bold uppercase tracking-wider mb-2 ${template === 'classic' ? 'text-amber-900 font-serif text-center' : template === 'minimalist' ? 'text-stone-900 font-bold border-b border-stone-300 pb-1' : 'text-slate-400'}`}>
+//                 <div className="mb-5">
+//                   <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
 //                     Education
 //                   </h2>
-//                   <div className="flex justify-between items-center">
-//                     <h3 className={`text-xs font-bold ${template === 'classic' ? 'text-amber-950 font-serif' : 'text-slate-800'}`}>
-//                       {formData.education.degree} {formData.education.institution && `at ${formData.education.institution}`}
+//                   <div className="flex justify-between items-baseline">
+//                     <h3 className="text-xs font-bold text-black">
+//                       {formData.education.degree} {formData.education.institution && `— ${formData.education.institution}`}
 //                     </h3>
-//                     <span className="text-[11px] text-slate-500 font-medium">{formData.education.year}</span>
+//                     <span className="text-[11px] text-slate-600 font-semibold">{formData.education.year}</span>
 //                   </div>
 //                 </div>
 //               )}
@@ -618,18 +644,19 @@
 //               {/* Skills */}
 //               {formData.skills && (
 //                 <div>
-//                   <h2 className={`text-xs font-bold uppercase tracking-wider mb-2 ${template === 'classic' ? 'text-amber-900 font-serif text-center' : template === 'minimalist' ? 'text-stone-900 font-bold border-b border-stone-300 pb-1' : 'text-slate-400'}`}>
+//                   <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
 //                     Skills
 //                   </h2>
-//                   <p className="text-xs text-slate-700 leading-relaxed">{formData.skills}</p>
+//                   <p className="text-xs text-slate-800 leading-relaxed">{formData.skills}</p>
 //                 </div>
 //               )}
 //             </div>
 
-//             <div className={`text-center pt-6 border-t text-[10px] ${template === 'classic' ? 'border-amber-900/20 text-amber-900/60' : template === 'minimalist' ? 'border-stone-300 text-stone-500' : 'border-slate-200 text-slate-400'}`}>
-//               Powered by CareerCraft AI Studio
+//             <div className="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-500">
+//               CareerCraft Studio • ATS Optimized
 //             </div>
 //           </div>
+
 //         </div>
 
 //       </div>
@@ -651,14 +678,6 @@
 //     </Suspense>
 //   );
 // }
-
-
-
-
-
-
-
-
 
 
 
@@ -690,24 +709,27 @@ function BuilderContent() {
   const [formData, setFormData] = useState({
     title: 'My Resume',
     personal_info: {
-      fullName: '',
-      email: '',
-      phone: '',
-      jobTitle: '',
+      fullName: 'SAHIB KHAN',
+      email: 'shaheen@gmail.com',
+      phone: '+92 300 1234567',
+      jobTitle: 'Graphic Designer',
       summary: '',
+      address: 'Islamabad, Pakistan',
     },
     education: {
-      degree: '',
-      institution: '',
-      year: '',
+      degree: 'BS Computer Science',
+      institution: 'Virtual University',
+      year: '2026',
     },
     experience: {
-      title: '',
-      company: '',
-      duration: '',
-      description: '',
+      title: 'Full Stack Developer',
+      company: 'Freelance',
+      duration: '2 Years',
+      description: 'Developed responsive web applications using Next.js, React, Node.js, and Supabase.',
     },
-    skills: '',
+    skills: 'Next.js, React, Node.js, Express, MongoDB, Tailwind CSS, Supabase, Git',
+    languages: 'English, Urdu',
+    hobbies: 'Coding, Reading, Problem Solving',
   });
 
   useEffect(() => {
@@ -732,6 +754,8 @@ function BuilderContent() {
             education: data.education || {},
             experience: data.experience || {},
             skills: data.skills || '',
+            languages: data.languages || 'English, Urdu',
+            hobbies: data.hobbies || 'Coding, Reading',
           });
         } else if (error) {
           console.error('Error fetching resume:', error);
@@ -874,39 +898,51 @@ function BuilderContent() {
     );
   }
 
+  // Helper to split comma-separated text into bullet items
+  const getListItems = (text) => {
+    if (!text) return [];
+    return text.split(',').map((item) => item.trim()).filter(Boolean);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       
-      {/* Absolute Clean Print CSS */}
+      {/* Precision Print CSS for Two-Column Graphical Layout */}
       <style jsx global>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm 15mm;
+            margin: 0;
           }
           body, html {
             background: #ffffff !important;
-            color: #000000 !important;
+            color: #1e293b !important;
             margin: 0 !important;
             padding: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          header, .no-print, .preview-wrapper {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
           header, .no-print {
             display: none !important;
           }
           #printable-resume {
             display: block !important;
-            position: relative !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
-            max-width: 100% !important;
+            min-height: 100vh !important;
             margin: 0 !important;
             padding: 0 !important;
             box-shadow: none !important;
             border: none !important;
-            border-radius: 0 !important;
             background: #ffffff !important;
-            color: #000000 !important;
           }
         }
       `}</style>
@@ -929,32 +965,11 @@ function BuilderContent() {
           />
         </div>
 
-        {/* Template Switcher & Actions */}
+        {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-            <button
-              onClick={() => setTemplate('modern')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${template === 'modern' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              Modern
-            </button>
-            <button
-              onClick={() => setTemplate('classic')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${template === 'classic' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              Classic
-            </button>
-            <button
-              onClick={() => setTemplate('minimalist')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${template === 'minimalist' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              Minimalist
-            </button>
-          </div>
-
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-all"
+            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition-all"
           >
             PDF Export
           </button>
@@ -971,7 +986,7 @@ function BuilderContent() {
       {/* Main Workspace */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 max-w-[1600px] w-full mx-auto p-6 gap-8">
         
-        {/* Left Side: Form Builder */}
+        {/* Left Side: Form Builder Inputs */}
         <div className="no-print space-y-6 overflow-y-auto max-h-[calc(100vh-100px)] pr-2">
           
           {/* Section 1: Personal Info */}
@@ -1018,18 +1033,28 @@ function BuilderContent() {
                   placeholder="+92 300 1234567"
                 />
               </div>
+              <div className="sm:col-span-2">
+                <label className="text-[11px] text-slate-400 mb-1 block">Address / Location</label>
+                <input
+                  type="text"
+                  value={formData.personal_info.address || ''}
+                  onChange={(e) => handleChange('personal_info', 'address', e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                  placeholder="Islamabad, Pakistan"
+                />
+              </div>
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="text-[11px] text-slate-400">Professional Summary</label>
+                <label className="text-[11px] text-slate-400">Career Objective / Summary</label>
                 <button
                   type="button"
                   onClick={handleAISummary}
                   disabled={generating}
                   className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-950/80 border border-indigo-800/50 px-2.5 py-1 rounded-lg transition-all flex items-center gap-1"
                 >
-                  {generating ? '✨ Generating...' : '✨ AI Generate Summary'}
+                  {generating ? '✨ Generating...' : '✨ AI Generate Objective'}
                 </button>
               </div>
               <textarea
@@ -1037,7 +1062,7 @@ function BuilderContent() {
                 value={formData.personal_info.summary || ''}
                 onChange={(e) => handleChange('personal_info', 'summary', e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none"
-                placeholder="Write a brief professional summary..."
+                placeholder="Enthusiastic individual eager to contribute to team goals..."
               />
             </div>
           </div>
@@ -1073,7 +1098,7 @@ function BuilderContent() {
                   value={formData.education.year || ''}
                   onChange={(e) => handleChange('education', 'year', e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  placeholder="2027"
+                  placeholder="2026"
                 />
               </div>
             </div>
@@ -1100,7 +1125,7 @@ function BuilderContent() {
                   value={formData.experience.company || ''}
                   onChange={(e) => handleChange('experience', 'company', e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  placeholder="Freelance / Project"
+                  placeholder="Freelance"
                 />
               </div>
               <div>
@@ -1121,22 +1146,42 @@ function BuilderContent() {
                 value={formData.experience.description || ''}
                 onChange={(e) => handleChange('experience', 'description', e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none"
-                placeholder="Developed responsive web applications..."
+                placeholder="Developed web applications..."
               />
             </div>
           </div>
 
-          {/* Section 4: Skills */}
+          {/* Section 4: Technical & Personal Skills */}
           <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">4. Skills</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">4. Skills & Languages</h3>
             <div>
-              <label className="text-[11px] text-slate-400 mb-1 block">Comma-separated skills</label>
+              <label className="text-[11px] text-slate-400 mb-1 block">Technical Skills (comma-separated)</label>
               <input
                 type="text"
                 value={formData.skills || ''}
                 onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                placeholder="Next.js, React, Node.js, Tailwind CSS, Supabase"
+                placeholder="Next.js, React, Node.js, Express, MongoDB, Tailwind CSS, Supabase"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-slate-400 mb-1 block">Languages (comma-separated)</label>
+              <input
+                type="text"
+                value={formData.languages || ''}
+                onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                placeholder="English, Urdu, Hindi"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-slate-400 mb-1 block">Hobbies / Personal Traits (comma-separated)</label>
+              <input
+                type="text"
+                value={formData.hobbies || ''}
+                onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                placeholder="Problem Solving, Reading Books, Sports"
               />
             </div>
           </div>
@@ -1214,112 +1259,168 @@ function BuilderContent() {
 
         </div>
 
-        {/* Right Side: Professional Live Resume Preview */}
+        {/* Right Side: Exact Graphical Template (Image 2 Match) */}
         <div className="preview-wrapper bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
           
           <div
             id="printable-resume"
-            className="w-full max-w-[650px] bg-white text-slate-900 p-10 shadow-2xl min-h-[800px] flex flex-col justify-between font-sans rounded-none border border-slate-200"
+            className="w-full max-w-[650px] bg-[#f4f5f7] text-slate-800 shadow-2xl min-h-[840px] flex flex-col overflow-hidden font-sans border border-slate-300"
           >
-            <div>
-              {/* Header based on Template */}
-              {template === 'classic' ? (
-                <div className="border-b-2 border-black pb-4 mb-6 text-center font-serif">
-                  <h1 className="text-2xl font-bold tracking-wide uppercase text-black">
-                    {formData.personal_info.fullName || 'Full Name'}
-                  </h1>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-700 mt-1">
-                    {formData.personal_info.jobTitle || 'Professional Title'}
-                  </p>
-                  <div className="flex justify-center gap-3 text-xs text-slate-600 mt-2">
-                    <span>{formData.personal_info.email || 'email@example.com'}</span>
-                    <span>•</span>
-                    <span>{formData.personal_info.phone || 'Phone'}</span>
-                  </div>
-                </div>
-              ) : template === 'minimalist' ? (
-                <div className="border-b border-slate-400 pb-4 mb-6">
-                  <h1 className="text-3xl font-light tracking-tight text-black">
-                    {formData.personal_info.fullName || 'Full Name'}
-                  </h1>
-                  <div className="flex justify-between items-center mt-1 text-xs text-slate-600">
-                    <span className="font-semibold uppercase tracking-wider">{formData.personal_info.jobTitle || 'Professional Title'}</span>
-                    <span>{formData.personal_info.email || 'email@example.com'} • {formData.personal_info.phone || 'Phone'}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="border-b-2 border-indigo-600 pb-4 mb-6">
-                  <h1 className="text-2xl font-extrabold text-slate-900">
-                    {formData.personal_info.fullName || 'Full Name'}
-                  </h1>
-                  <div className="flex justify-between items-center mt-1">
-                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wide">
-                      {formData.personal_info.jobTitle || 'Professional Title'}
-                    </span>
-                    <span className="text-xs text-slate-600 font-medium">
-                      {formData.personal_info.email || 'email@example.com'} | {formData.personal_info.phone || 'Phone'}
-                    </span>
-                  </div>
-                </div>
-              )}
+            {/* Top Slate-Blue Banner Header */}
+            <div className="bg-[#4a6b82] text-white py-4 text-center font-bold text-lg tracking-widest uppercase">
+              Fresher Resume
+            </div>
 
-              {/* Summary */}
-              {formData.personal_info.summary && (
-                <div className="mb-5">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
-                    Professional Summary
-                  </h2>
-                  <p className="text-xs text-slate-800 leading-relaxed">
-                    {formData.personal_info.summary}
-                  </p>
-                </div>
-              )}
+            {/* Top Slanted Banner Section for Name & Title */}
+            <div className="bg-[#85a5be] text-slate-900 px-8 py-8 flex justify-between items-center relative clip-header border-b-2 border-slate-700">
+              <div>
+                <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[#1a2f3d]">
+                  {formData.personal_info.fullName || 'SAHIB KHAN'}
+                </h1>
+                <p className="text-sm font-semibold text-[#2c4759] mt-1">
+                  {formData.personal_info.jobTitle || 'Graphic Designer'}
+                </p>
+              </div>
 
-              {/* Experience */}
-              {(formData.experience.title || formData.experience.company) && (
-                <div className="mb-5">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
-                    Experience
-                  </h2>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="text-xs font-bold text-black">
-                      {formData.experience.title} {formData.experience.company && `at ${formData.experience.company}`}
-                    </h3>
-                    <span className="text-[11px] text-slate-600 font-semibold">{formData.experience.duration}</span>
-                  </div>
-                  <p className="text-xs text-slate-800 leading-relaxed">{formData.experience.description}</p>
-                </div>
-              )}
+              {/* Profile Avatar Frame */}
+              <div className="w-20 h-20 rounded-full border-4 border-white bg-slate-300 flex items-center justify-center overflow-hidden shadow-lg">
+                <span className="text-2xl font-bold text-slate-600">
+                  {formData.personal_info.fullName ? formData.personal_info.fullName.charAt(0) : 'S'}
+                </span>
+              </div>
+            </div>
 
-              {/* Education */}
-              {(formData.education.degree || formData.education.institution) && (
-                <div className="mb-5">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-2">
-                    Education
-                  </h2>
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="text-xs font-bold text-black">
-                      {formData.education.degree} {formData.education.institution && `— ${formData.education.institution}`}
-                    </h3>
-                    <span className="text-[11px] text-slate-600 font-semibold">{formData.education.year}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Skills */}
-              {formData.skills && (
+            {/* Two-Column Content Layout */}
+            <div className="flex-1 grid grid-cols-12 bg-[#f8f9fa]">
+              
+              {/* Left Column (Contact, Personal Skills, Languages) */}
+              <div className="col-span-4 bg-[#f1f4f7] p-6 border-r border-slate-300 space-y-6">
+                
+                {/* Contact Section */}
                 <div>
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-300 pb-1 mb-1.5">
-                    Skills
-                  </h2>
-                  <p className="text-xs text-slate-800 leading-relaxed">{formData.skills}</p>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-300 pb-1">
+                    📱 Contact
+                  </h3>
+                  <div className="space-y-2 text-[11px] text-slate-700">
+                    <div>
+                      <span className="font-bold block text-slate-900">Phone</span>
+                      <p>{formData.personal_info.phone || '+91 8954400000'}</p>
+                    </div>
+                    <div>
+                      <span className="font-bold block text-slate-900">Email</span>
+                      <p className="break-all">{formData.personal_info.email || 'shaheen@gmail.com'}</p>
+                    </div>
+                    <div>
+                      <span className="font-bold block text-slate-900">Address</span>
+                      <p>{formData.personal_info.address || 'Islamabad, Pakistan'}</p>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Personal Skills / Hobbies Section */}
+                {formData.hobbies && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-300 pb-1">
+                      👤 Personal Skills
+                    </h3>
+                    <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-1">
+                      {getListItems(formData.hobbies).map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Languages Section */}
+                {formData.languages && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-300 pb-1">
+                      🌐 Languages
+                    </h3>
+                    <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-1">
+                      {getListItems(formData.languages).map((lang, idx) => (
+                        <li key={idx}>{lang}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Right Column (Career Objective, Education, Technical Skills, Experience) */}
+              <div className="col-span-8 p-6 space-y-6 bg-white">
+                
+                {/* Career Objective / Summary */}
+                {formData.personal_info.summary && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-2 flex items-center gap-1.5 border-b border-slate-200 pb-1">
+                      💼 Career Objective
+                    </h3>
+                    <p className="text-xs text-slate-700 leading-relaxed font-normal">
+                      {formData.personal_info.summary}
+                    </p>
+                  </div>
+                )}
+
+                {/* Education Section */}
+                {(formData.education.degree || formData.education.institution) && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-200 pb-1">
+                      🎓 Education
+                    </h3>
+                    <div className="flex justify-between items-start text-xs">
+                      <div>
+                        <p className="font-bold text-slate-900">{formData.education.degree}</p>
+                        <p className="text-[11px] text-slate-600 font-medium">{formData.education.institution}</p>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-500">{formData.education.year}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Technical Skills Section */}
+                {formData.skills && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-200 pb-1">
+                      💻 Technical Skills
+                    </h3>
+                    <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
+                      {getListItems(formData.skills).map((skill, idx) => (
+                        <li key={idx}>{skill}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Experience Section */}
+                {(formData.experience.title || formData.experience.company) && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#1a2f3d] mb-3 flex items-center gap-1.5 border-b border-slate-200 pb-1">
+                      🧰 Experience
+                    </h3>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-baseline">
+                        <p className="text-xs font-bold text-slate-900">
+                          {formData.experience.title} {formData.experience.company && `— ${formData.experience.company}`}
+                        </p>
+                        <span className="text-[11px] font-bold text-slate-500">{formData.experience.duration}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        {formData.experience.description}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
             </div>
 
-            <div className="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-500">
-              CareerCraft Studio • ATS Optimized
+            {/* Bottom Footer Accent */}
+            <div className="bg-[#4a6b82] py-2 text-center text-[10px] text-slate-200 font-semibold">
+              CareerCraft AI Studio • Professional Layout
             </div>
+
           </div>
 
         </div>
