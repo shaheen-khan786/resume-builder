@@ -877,18 +877,28 @@ function BuilderContent() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       
-      {/* Premium Print-Only CSS */}
+      {/* Strict Print-Only CSS to guarantee clean white PDF */}
       <style jsx global>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 12mm;
+            margin: 0;
           }
-          body {
+          html, body {
             background: #ffffff !important;
             color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: auto !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          header, .no-print, .preview-wrapper {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
           header, .no-print {
             display: none !important;
@@ -899,8 +909,10 @@ function BuilderContent() {
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
+            max-width: 100% !important;
+            min-height: 100vh !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 15mm 20mm !important;
             box-shadow: none !important;
             border: none !important;
             border-radius: 0 !important;
@@ -1214,7 +1226,7 @@ function BuilderContent() {
         </div>
 
         {/* Right Side: High-End Live Resume Preview */}
-        <div className="bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
+        <div className="preview-wrapper bg-slate-900/40 rounded-2xl border border-slate-800 p-8 flex flex-col justify-start items-center sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto">
           
           <div
             id="printable-resume"
