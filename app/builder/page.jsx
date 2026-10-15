@@ -703,33 +703,31 @@ function BuilderContent() {
   const [analyzing, setAnalyzing] = useState(false);
   const [atsResult, setAtsResult] = useState(null);
 
-  const [template, setTemplate] = useState('modern');
-
-  // Form State
+  // Form State initialized to EMPTY strings for new resumes
   const [formData, setFormData] = useState({
     title: 'My Resume',
     personal_info: {
-      fullName: 'SAHIB KHAN',
-      email: 'shaheen@gmail.com',
-      phone: '+92 300 1234567',
-      jobTitle: 'Graphic Designer',
+      fullName: '',
+      email: '',
+      phone: '',
+      jobTitle: '',
       summary: '',
-      address: 'Islamabad, Pakistan',
+      address: '',
     },
     education: {
-      degree: 'BS Computer Science',
-      institution: 'Virtual University',
-      year: '2026',
+      degree: '',
+      institution: '',
+      year: '',
     },
     experience: {
-      title: 'Full Stack Developer',
-      company: 'Freelance',
-      duration: '2 Years',
-      description: 'Developed responsive web applications using Next.js, React, Node.js, and Supabase.',
+      title: '',
+      company: '',
+      duration: '',
+      description: '',
     },
-    skills: 'Next.js, React, Node.js, Express, MongoDB, Tailwind CSS, Supabase, Git',
-    languages: 'English, Urdu',
-    hobbies: 'Coding, Reading, Problem Solving',
+    skills: '',
+    languages: '',
+    hobbies: '',
   });
 
   useEffect(() => {
@@ -754,8 +752,8 @@ function BuilderContent() {
             education: data.education || {},
             experience: data.experience || {},
             skills: data.skills || '',
-            languages: data.languages || 'English, Urdu',
-            hobbies: data.hobbies || 'Coding, Reading',
+            languages: data.languages || '',
+            hobbies: data.hobbies || '',
           });
         } else if (error) {
           console.error('Error fetching resume:', error);
@@ -866,6 +864,8 @@ function BuilderContent() {
       education: formData.education,
       experience: formData.experience,
       skills: formData.skills,
+      languages: formData.languages,
+      hobbies: formData.hobbies,
     };
 
     if (resumeId) {
@@ -1275,17 +1275,17 @@ function BuilderContent() {
             <div className="bg-[#85a5be] text-slate-900 px-8 py-8 flex justify-between items-center relative clip-header border-b-2 border-slate-700">
               <div>
                 <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[#1a2f3d]">
-                  {formData.personal_info.fullName || 'SAHIB KHAN'}
+                  {formData.personal_info.fullName || 'YOUR NAME'}
                 </h1>
                 <p className="text-sm font-semibold text-[#2c4759] mt-1">
-                  {formData.personal_info.jobTitle || 'Graphic Designer'}
+                  {formData.personal_info.jobTitle || 'Your Job Title'}
                 </p>
               </div>
 
               {/* Profile Avatar Frame */}
               <div className="w-20 h-20 rounded-full border-4 border-white bg-slate-300 flex items-center justify-center overflow-hidden shadow-lg">
                 <span className="text-2xl font-bold text-slate-600">
-                  {formData.personal_info.fullName ? formData.personal_info.fullName.charAt(0) : 'S'}
+                  {formData.personal_info.fullName ? formData.personal_info.fullName.charAt(0).toUpperCase() : 'Y'}
                 </span>
               </div>
             </div>
@@ -1304,15 +1304,15 @@ function BuilderContent() {
                   <div className="space-y-2 text-[11px] text-slate-700">
                     <div>
                       <span className="font-bold block text-slate-900">Phone</span>
-                      <p>{formData.personal_info.phone || '+91 8954400000'}</p>
+                      <p>{formData.personal_info.phone || '+92 300 0000000'}</p>
                     </div>
                     <div>
                       <span className="font-bold block text-slate-900">Email</span>
-                      <p className="break-all">{formData.personal_info.email || 'shaheen@gmail.com'}</p>
+                      <p className="break-all">{formData.personal_info.email || 'your.email@example.com'}</p>
                     </div>
                     <div>
                       <span className="font-bold block text-slate-900">Address</span>
-                      <p>{formData.personal_info.address || 'Islamabad, Pakistan'}</p>
+                      <p>{formData.personal_info.address || 'City, Country'}</p>
                     </div>
                   </div>
                 </div>
