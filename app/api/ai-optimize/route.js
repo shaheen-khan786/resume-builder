@@ -114,8 +114,6 @@
 //   }
 // }
 
-
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(req) {
@@ -134,8 +132,8 @@ export async function POST(req) {
 
     const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
 
-    // Using 'gemini-pro' which is universally stable for text generation
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // Updated to the latest stable endpoint model name
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     if (action === 'generate_summary') {
       const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. Skills: ${skills || 'Software development'}. Experience: ${expText}. Return ONLY text summary with no markdown.`;
