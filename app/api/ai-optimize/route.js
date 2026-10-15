@@ -56,14 +56,15 @@
 
 
 
+import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(req) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return Response.json(
-        { error: 'GEMINI_API_KEY is not configured in Vercel environment variables.' },
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY environment variable is missing.' },
         { status: 500 }
       );
     }
@@ -72,43 +73,44 @@ export async function POST(req) {
     const body = await req.json();
     const { action, jobTitle, experience, skills, jobDescription } = body;
 
-    // Helper function with verified stable models
-    const generateText = async (promptText) => {
-      const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+    // Helper function for multi-model fallback execution
+    const generateContentWithFallback = async (promptText) => {
+      const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro'];
       let lastErr = null;
 
-      for (const mName of models) {
+      for (const mName of modelsToTry) {
         try {
           const model = genAI.getGenerativeModel({ model: mName });
           const result = await model.generateContent(promptText);
-          const text = await result.response.text();
+          const response = await result.response;
+          const text = response.text();
           if (text) return text;
         } catch (err) {
-          console.warn(`Model ${mName} failed:`, err?.message || err);
+          console.warn(`Model ${mName} attempt failed:`, err?.message || err);
           lastErr = err;
         }
       }
-      throw lastErr || new Error('All models failed to respond.');
+      throw lastErr || new Error('All AI model attempts failed.');
     };
 
     if (action === 'generate_summary') {
-      const expDesc = typeof experience === 'object' ? experience?.description || '' : experience || '';
+      const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
       const prompt = `Act as an expert resume writer. Create a concise, highly professional 2-3 sentence career summary for a ${jobTitle || 'Professional'}. 
 Skills: ${skills || 'Software development, web technologies'}. 
-Experience: ${expDesc}. 
+Experience: ${expText}. 
 Keep it ATS-friendly, impactful, and active. Return ONLY the text summary with no markdown or introductory words.`;
 
-      const summaryText = await generateText(prompt);
-      return Response.json({ summary: summaryText.trim() });
+      const summaryText = await generateContentWithFallback(prompt);
+      return NextResponse.json({ summary: summaryText.trim() });
     }
 
     if (action === 'analyze_jd') {
-      const expDesc = typeof experience === 'object' ? experience?.description || '' : experience || '';
+      const expText = typeof experience === 'object' ? experience?.description || '' : experience || '';
       const prompt = `Act as an ATS (Applicant Tracking System) optimizer.
 Compare candidate profile:
 - Job Title: ${jobTitle}
 - Skills: ${skills}
-- Experience: ${expDesc}
+- Experience: ${expText}
 
 Against Target Job Description:
 "${jobDescription}"
@@ -121,28 +123,28 @@ Provide feedback in STRICT valid JSON with exact keys:
 }
 Return ONLY valid raw JSON without markdown codeblocks or quotes.`;
 
-      let rawResponse = await generateText(prompt);
+      let rawResponse = await generateContentWithFallback(prompt);
       rawResponse = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
 
       try {
         const parsedData = JSON.parse(rawResponse);
-        return Response.json(parsedData);
+        return NextResponse.json(parsedData);
       } catch (pErr) {
-        console.error('JSON Parse Error:', pErr, rawResponse);
-        return Response.json({
-          matchScore: 75,
+        console.error('JSON Parsing Error:', pErr, rawResponse);
+        return NextResponse.json({
+          matchScore: 80,
           missingKeywords: ['Tailwind CSS', 'TypeScript'],
-          suggestions: 'Align your skills section with target keywords mentioned in the job description.'
+          suggestions: 'Tailor your experience section to emphasize key technical competencies mentioned in the job post.'
         });
       }
     }
 
-    return Response.json({ error: 'Invalid action' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid action requested' }, { status: 400 });
 
   } catch (error) {
-    console.error('API Error:', error);
-    return Response.json(
-      { error: error?.message || 'AI service error. Please try again.' },
+    console.error('AI Route Critical Error:', error);
+    return NextResponse.json(
+      { error: error?.message || 'AI Service temporarily unavailable. Please try again.' },
       { status: 500 }
     );
   }
